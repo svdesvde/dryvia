@@ -1,23 +1,618 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My Website</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dry Roof Systems | Building Humidity Monitoring</title>
+  <meta name="description" content="Technology for measuring humidity in buildings, with a focus on keeping warm roofs dry through continuous monitoring and better maintenance decisions." />
   <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      margin-top: 100px;
-      background: #f5f5f5;
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(255,255,255,0.08);
+      --panel-strong: rgba(255,255,255,0.12);
+      --text: #eaf1ff;
+      --muted: #b8c3df;
+      --line: rgba(255,255,255,0.14);
+      --accent: #74c0fc;
+      --accent-2: #8ce99a;
+      --shadow: 0 20px 50px rgba(0,0,0,0.28);
+      --radius: 22px;
+      --max: 1140px;
     }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(116,192,252,0.16), transparent 30%),
+        radial-gradient(circle at 85% 20%, rgba(140,233,154,0.12), transparent 22%),
+        linear-gradient(180deg, #0b1020 0%, #10182f 50%, #0b1020 100%);
+      line-height: 1.55;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: rgba(11,16,32,0.65);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #07111d;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 18px;
+      border-radius: 999px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition: 0.2s ease;
+    }
+
+    .button-primary {
+      background: linear-gradient(135deg, var(--accent), #91a7ff);
+      color: #07111d;
+      box-shadow: var(--shadow);
+    }
+
+    .button-secondary {
+      border-color: var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+    }
+
+    .button:hover { transform: translateY(-1px); }
+
+    .hero {
+      padding: 76px 0 48px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.04);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
     h1 {
-      color: #333;
+      margin: 0;
+      font-size: clamp(2.4rem, 5vw, 4.7rem);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      font-size: 1.08rem;
+      color: var(--muted);
+      max-width: 680px;
+      margin: 18px 0 28px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .stat,
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .stat {
+      padding: 18px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.3rem;
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .mockup {
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mockup::before {
+      content: "";
+      position: absolute;
+      inset: -30% auto auto -10%;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(116,192,252,0.38), transparent 60%);
+      pointer-events: none;
+    }
+
+    .screen {
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      padding: 18px;
+      min-height: 460px;
+    }
+
+    .screen-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(140,233,154,0.14);
+      color: #d3f9d8;
+      border: 1px solid rgba(140,233,154,0.24);
+      font-size: 13px;
+    }
+
+    .chart {
+      margin: 18px 0;
+      height: 180px;
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(8,12,24,0.42);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: end;
+      gap: 10px;
+    }
+
+    .bar {
+      flex: 1;
+      border-radius: 10px 10px 4px 4px;
+      background: linear-gradient(180deg, rgba(116,192,252,0.95), rgba(145,167,255,0.55));
+    }
+
+    .bar:nth-child(2) { height: 52%; }
+    .bar:nth-child(3) { height: 35%; }
+    .bar:nth-child(4) { height: 42%; }
+    .bar:nth-child(5) { height: 28%; }
+    .bar:nth-child(6) { height: 18%; }
+    .bar:nth-child(1) { height: 64%; }
+
+    .screen-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .mini {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .mini .label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mini strong {
+      display: block;
+      font-size: 1.6rem;
+      margin-top: 6px;
+    }
+
+    section {
+      padding: 40px 0;
+    }
+
+    .section-head {
+      margin-bottom: 24px;
+      max-width: 760px;
+    }
+
+    .section-head h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: -0.03em;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .grid-3,
+    .grid-2 {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+    .card {
+      padding: 22px;
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+    }
+
+    .card p,
+    .card li {
+      color: var(--muted);
+    }
+
+    .icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      background: rgba(116,192,252,0.12);
+      border: 1px solid rgba(116,192,252,0.18);
+      font-size: 21px;
+    }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 16px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), #91a7ff);
+      color: #07111d;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .quote {
+      font-size: 1.1rem;
+      color: var(--text);
+      margin: 0 0 12px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .cta {
+      padding: 26px;
+      background: linear-gradient(135deg, rgba(116,192,252,0.14), rgba(145,167,255,0.08));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .footer {
+      padding: 30px 0 60px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .grid-3,
+      .grid-2 { grid-template-columns: 1fr; }
+
+      .hero-stats { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .cta { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding-top: 52px; }
+      .screen-grid { grid-template-columns: 1fr; }
+      .container { width: min(calc(100% - 20px), var(--max)); }
     }
   </style>
 </head>
-
 <body>
-  <h1>Welcome to My Website</h1>
-  <p>This site is hosted for free with GitHub Pages.</p>
-</body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="#top" class="brand">
+        <div class="brand-mark">💧</div>
+        <span>Dry Roof Systems</span>
+      </a>
+      <div class="nav-links">
+        <a href="#technology">Technology</a>
+        <a href="#warm-roofs">Warm Roofs</a>
+        <a href="#process">Process</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
 
+  <header class="hero" id="top">
+    <div class="container hero-grid">
+      <div>
+        <div class="eyebrow">Humidity monitoring for smarter building performance</div>
+        <h1>Measure moisture early. Keep warm roofs dry.</h1>
+        <p>
+          We help building owners, consultants, and contractors understand hidden moisture conditions inside roofs and building assemblies. Using modern humidity sensing technology, we turn unseen risk into practical maintenance decisions before damage becomes expensive.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#contact">Book a consultation</a>
+          <a class="button button-secondary" href="#technology">See how it works</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <strong>24/7</strong>
+            <span>continuous environmental monitoring</span>
+          </div>
+          <div class="stat">
+            <strong>Early</strong>
+            <span>detection of trapped moisture before visible failure</span>
+          </div>
+          <div class="stat">
+            <strong>Targeted</strong>
+            <span>maintenance based on measured data, not guesswork</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mockup card">
+        <div class="screen">
+          <div class="screen-top">
+            <span>Roof cavity status dashboard</span>
+            <span class="pill">Dry trend improving</span>
+          </div>
+          <div class="chart" aria-hidden="true">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+          <div class="screen-grid">
+            <div class="mini">
+              <div class="label">Relative humidity</div>
+              <strong>58%</strong>
+            </div>
+            <div class="mini">
+              <div class="label">Surface temperature</div>
+              <strong>17.4°C</strong>
+            </div>
+            <div class="mini">
+              <div class="label">Condensation risk</div>
+              <strong>Low</strong>
+            </div>
+            <div class="mini">
+              <div class="label">Sensor status</div>
+              <strong>Online</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="technology">
+    <div class="container">
+      <div class="section-head">
+        <h2>Technology that reveals what the building cannot show you yet</h2>
+        <p>
+          Moisture problems often begin out of sight. By measuring humidity, temperature, and trend patterns inside building assemblies, it becomes possible to identify risk earlier and respond with confidence.
+        </p>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <div class="icon">📡</div>
+          <h3>Embedded sensing</h3>
+          <p>Sensors can be positioned within roof or wall build-ups to track environmental conditions where moisture risk actually develops.</p>
+        </article>
+        <article class="card">
+          <div class="icon">📈</div>
+          <h3>Trend-based insight</h3>
+          <p>Single readings only tell part of the story. Continuous monitoring shows whether a structure is drying, stabilising, or moving toward failure.</p>
+        </article>
+        <article class="card">
+          <div class="icon">🛠️</div>
+          <h3>Actionable maintenance</h3>
+          <p>Measured data supports targeted inspections, repair planning, and asset management without relying on assumptions alone.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="warm-roofs">
+    <div class="container">
+      <div class="section-head">
+        <h2>Example use case: keeping warm roofs dry</h2>
+        <p>
+          Warm roof systems can trap moisture if water ingress, construction moisture, or vapour movement is not managed properly. Monitoring helps confirm whether the roof is remaining dry over time or whether hidden moisture is building up beneath the membrane.
+        </p>
+      </div>
+      <div class="grid-2">
+        <article class="card">
+          <h3>Why warm roofs need monitoring</h3>
+          <ul>
+            <li>Moisture can remain concealed within insulation or structural layers.</li>
+            <li>Damage may develop long before leaks are visible internally.</li>
+            <li>Drying performance can be verified after installation or remediation work.</li>
+            <li>Evidence-based monitoring helps reduce unnecessary invasive inspections.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>What building teams gain</h3>
+          <ul>
+            <li>Earlier warning of elevated humidity conditions.</li>
+            <li>Better understanding of condensation risk in changing weather conditions.</li>
+            <li>Data to support warranty, maintenance, and lifecycle decisions.</li>
+            <li>Greater confidence that the roof build-up is performing as intended.</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="process">
+    <div class="container">
+      <div class="section-head">
+        <h2>A simple process from install to insight</h2>
+        <p>
+          The goal is not just collecting data. It is turning building humidity information into practical decisions that protect the asset.
+        </p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div>
+            <h3>Assess the structure</h3>
+            <p class="muted">Identify the parts of the building where hidden moisture risk is highest, such as roof zones, penetrations, or vulnerable interfaces.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Install and monitor</h3>
+            <p class="muted">Place sensors strategically and track humidity and temperature conditions over time rather than relying on isolated spot checks.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Interpret the data</h3>
+            <p class="muted">Review patterns, compare seasonal behaviour, and identify whether the assembly is drying, stable, or at growing risk.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Act with confidence</h3>
+            <p class="muted">Use measured evidence to plan inspections, maintenance, or remedial work where it is actually needed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container grid-2">
+      <article class="card">
+        <h3>Built for building professionals</h3>
+        <p class="quote">Designed for owners, surveyors, roofing specialists, consultants, and asset managers who need reliable moisture insight without unnecessary disruption.</p>
+        <p class="muted">This page can be adapted for your specific service, products, project examples, or region.</p>
+      </article>
+      <article class="card">
+        <h3>What to customise next</h3>
+        <p class="muted">Replace the placeholder brand name, add your logo, update the contact section, and include a real project example or case study to make the site more credible.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="container">
+      <div class="cta">
+        <div>
+          <h2 style="margin:0 0 8px;">Want a simple way to explain your solution online?</h2>
+          <p class="muted" style="margin:0;">Use this page as your starter website and connect it to your domain through GitHub Pages for free.</p>
+        </div>
+        <a class="button button-primary" href="mailto:hello@yourdomain.co.nz">hello@yourdomain.co.nz</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      © 2026 Dry Roof Systems. Building humidity monitoring for better-performing roofs and building envelopes.
+    </div>
+  </footer>
+</body>
 </html>
